@@ -23,33 +23,20 @@
   <section class="hero">
     <div class="alvo-wrap">
       <svg viewBox="0 0 200 200" aria-hidden="true">
-        <!-- anéis do alvo -->
-        <circle cx="100" cy="100" r="92" fill="#e4eaf7"/>
-        <circle cx="100" cy="100" r="74" fill="#f8dde0"/>
-        <circle cx="100" cy="100" r="56" fill="#fdeecb"/>
-        <circle cx="100" cy="100" r="42" fill="#ffffff"/>
-        <circle cx="100" cy="100" r="92" fill="none" stroke="#fff" stroke-width="2.5"/>
-        <circle cx="100" cy="100" r="74" fill="none" stroke="#fff" stroke-width="2.5"/>
-        <circle cx="100" cy="100" r="56" fill="none" stroke="#fff" stroke-width="2.5"/>
-        <circle cx="100" cy="100" r="42" fill="none" stroke="#fff" stroke-width="2.5"/>
-        <!-- anel de progresso -->
+        <defs><clipPath id="medal"><circle cx="100" cy="100" r="80"/></clipPath></defs>
+        <!-- brasão: logo do EJC no centro -->
+        <circle cx="100" cy="100" r="80" fill="#0a0e17"/>
+        <image href="/static/img/logo-ejc.png" x="30" y="60" width="140" height="80"
+               preserveAspectRatio="xMidYMid meet" clip-path="url(#medal)"/>
+        <!-- anel de progresso (enche conforme as doações) -->
         <circle cx="100" cy="100" r="97" fill="none" stroke="#eef2fb" stroke-width="6"/>
         <circle id="progRing" cx="100" cy="100" r="97" fill="none" stroke="#e23b45"
           stroke-width="6" stroke-linecap="round"
           stroke-dasharray="609.5" stroke-dashoffset="609.5"
           transform="rotate(-90 100 100)"/>
-        <!-- flecha fincada no centro -->
-        <g id="arrow" opacity="0">
-          <line x1="171" y1="29" x2="104" y2="96" stroke="#c9871a" stroke-width="3.4" stroke-linecap="round"/>
-          <path d="M104 96 l12 -3 l-3 -9 z" fill="#c9871a"/>
-          <path d="M171 29 l-9 1 l4 -8 z" fill="#c9871a"/>
-          <path d="M166 34 l-9 1 l4 -8 z" fill="#f0ac2e"/>
-        </g>
       </svg>
-      <div class="center-pct">
-        <span class="num" id="heroPct">0%</span>
-        <span class="lbl">no alvo</span>
-      </div>
+      <div class="pct-badge"><b id="heroPct">0%</b> <span>no alvo</span></div>
+    </div>
     </div>
     <h1>Em busca do verdadeiro <span class="cristo">tesouro</span></h1>
     <p class="org" id="heroOrg">Mocidade Presbiteriana de Ponta Grossa</p>

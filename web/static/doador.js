@@ -66,8 +66,6 @@
     $("#heroPct").textContent = Math.round(pct) + "%";
     $("#progRing").style.strokeDashoffset = RING_LEN * (1 - Math.min(pct, 100) / 100);
     $("#progRing").style.transition = "stroke-dashoffset .8s cubic-bezier(.2,.8,.2,1)";
-    $("#arrow").style.transition = "opacity .6s ease";
-    $("#arrow").style.opacity = pct > 0 ? "1" : "0";
     if (pct >= 100) $("#progRing").setAttribute("stroke", "#f0ac2e");
     else $("#progRing").setAttribute("stroke", "#e23b45");
     // subtítulo
