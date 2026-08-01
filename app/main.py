@@ -31,6 +31,8 @@ from .security import COOKIE_NAME, check_credentials, create_token, require_admi
 from .seed_data import CATEGORIAS, ITENS
 
 WEB = Path(__file__).resolve().parent.parent / "web"
+LOGO_IGREJA = WEB / "static" / "img" / "logo-igreja.png"
+LOGO_EJC = WEB / "static" / "img" / "logo-ejc.png"
 
 
 # ---------------------------------------------------------------- startup ----
@@ -470,13 +472,45 @@ async def _export_rows(db: AsyncSession):
 @app.get("/api/admin/export.xlsx", include_in_schema=False)
 async def admin_export_xlsx(admin: str = Depends(require_admin), db: AsyncSession = Depends(get_db)):
     import openpyxl
+    from openpyxl.styles import Alignment, Font, PatternFill
+    from openpyxl.drawing.image import Image as XLImage
 
     rows, items = await _export_rows(db)
     wb = openpyxl.Workbook()
     ws = wb.active
     ws.title = "Doações"
-    ws.append(["ID", "Item", "Doador", "Grupo", "Contato", "Quantidade", "Unidade",
-               "Status", "Observação", "Registrado em"])
+
+    # ---- cabeçalho padronizado com logos (igreja à esquerda, EJC à direita) ----
+    ws.row_dimensions[1].height = 46
+    ws.merge_cells("B1:I1")
+    ws.merge_cells("B2:I2")
+    c1 = ws["B1"]; c1.value = settings.EVENT_NAME
+    c1.font = Font(name="Calibri", size=16, bold=True, color="10214B")
+    c1.alignment = Alignment(horizontal="center", vertical="center")
+    c2 = ws["B2"]; c2.value = settings.EVENT_SUBTITLE
+    c2.font = Font(name="Calibri", size=10, color="5A5A5A")
+    c2.alignment = Alignment(horizontal="center", vertical="center")
+    try:
+        if LOGO_IGREJA.exists():
+            ig = XLImage(str(LOGO_IGREJA)); ig.width = 46; ig.height = 46
+            ws.add_image(ig, "A1")
+    except Exception:
+        pass
+    try:
+        if LOGO_EJC.exists():
+            ej = XLImage(str(LOGO_EJC)); ej.height = 40; ej.width = int(40 * 213 / 120)
+            ws.add_image(ej, "J1")
+    except Exception:
+        pass
+
+    # ---- tabela (linha 4 em diante) ----
+    header = ["ID", "Item", "Doador", "Grupo", "Contato", "Quantidade", "Unidade",
+              "Status", "Observação", "Registrado em"]
+    ws.append([])  # linha 3 em branco
+    ws.append(header)
+    head_fill = PatternFill("solid", fgColor="10214B")
+    for cell in ws[ws.max_row]:
+        cell.font = Font(bold=True, color="FFFFFF"); cell.fill = head_fill
     for d in rows:
         ws.append([
             d.id,
@@ -485,6 +519,10 @@ async def admin_export_xlsx(admin: str = Depends(require_admin), db: AsyncSessio
             d.status, d.observacao or "",
             d.criado_em.strftime("%d/%m/%Y %H:%M") if d.criado_em else "",
         ])
+    widths = [6, 26, 20, 14, 16, 12, 12, 12, 26, 18]
+    for i, w in enumerate(widths, start=1):
+        ws.column_dimensions[openpyxl.utils.get_column_letter(i)].width = w
+
     buf = io.BytesIO()
     wb.save(buf)
     buf.seek(0)
@@ -508,15 +546,35 @@ async def admin_export_pdf(admin: str = Depends(require_admin), db: AsyncSession
 
     pdf = FPDF(orientation="P", unit="mm", format="A4")
     pdf.set_auto_page_break(auto=True, margin=15)
+    pdf.set_margins(left=15, top=12, right=15)
     pdf.add_page()
 
+    # ---- cabeçalho padronizado: logo igreja à esquerda, EJC à direita ----
+    try:
+        if LOGO_IGREJA.exists():
+            pdf.image(str(LOGO_IGREJA), x=15, y=11, w=20, h=20)
+    except Exception:
+        pass
+    try:
+        if LOGO_EJC.exists():
+            # proporção 213:120 -> largura ~30 para altura 17
+            pdf.image(str(LOGO_EJC), x=195 - 30, y=13, w=30, h=17)
+    except Exception:
+        pass
+
+    pdf.set_xy(15, 13)
     pdf.set_font("Helvetica", "B", 18)
     pdf.set_text_color(16, 33, 75)
-    pdf.cell(0, 10, txt(settings.EVENT_NAME), ln=1)
+    pdf.cell(0, 9, txt(settings.EVENT_NAME), ln=1, align="C")
+    pdf.set_x(15)
     pdf.set_font("Helvetica", "", 11)
     pdf.set_text_color(90, 90, 90)
-    pdf.cell(0, 6, txt(settings.EVENT_SUBTITLE), ln=1)
-    pdf.cell(0, 6, txt("Relatório gerado em " + datetime.now().strftime("%d/%m/%Y %H:%M")), ln=1)
+    pdf.cell(0, 6, txt(settings.EVENT_SUBTITLE), ln=1, align="C")
+    pdf.set_x(15)
+    pdf.cell(0, 6, txt("Relatório gerado em " + datetime.now().strftime("%d/%m/%Y %H:%M")), ln=1, align="C")
+    pdf.set_y(35)
+    pdf.set_draw_color(224, 230, 245)
+    pdf.line(15, 34, 195, 34)
     pdf.ln(2)
     pdf.set_font("Helvetica", "B", 11)
     pdf.set_text_color(20, 20, 20)

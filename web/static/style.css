@@ -227,9 +227,12 @@ img,svg{display:block}
 /* ============================================================
    ADMIN
    ============================================================ */
-.admin-top{background:var(--ink);color:#fff;padding:13px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:40}
+.admin-top{background:#0a0e17;color:#fff;padding:10px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;position:sticky;top:0;z-index:40;border-bottom:1px solid #1b2440}
 .admin-top .brand{display:flex;align-items:center;gap:10px;font-family:var(--f-disp);font-weight:700;font-size:1.05rem}
 .admin-top .brand .mira{width:20px;height:20px}
+.admin-top .brand .logo-ig{height:34px;width:34px;border-radius:9px;object-fit:cover;box-shadow:0 1px 4px rgba(0,0,0,.4)}
+.admin-top .acts{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.admin-top .acts .logo-ejc{height:32px;width:auto;border-radius:7px;margin-left:4px;box-shadow:0 1px 4px rgba(0,0,0,.4)}
 .admin-top .acts{display:flex;gap:8px;align-items:center}
 .admin-top a,.admin-top button{font-size:.78rem;color:#c3cde4;border:1px solid #2c3d6d;border-radius:8px;padding:7px 12px;text-decoration:none;transition:.15s;background:none}
 .admin-top a:hover,.admin-top button:hover{background:#1b2c57;color:#fff}
