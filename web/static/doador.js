@@ -16,7 +16,7 @@
     document.title = `${cfg.event_name} · Doações`;
     if (cfg.event_verse) $("#verse").textContent = cfg.event_verse;
     if (cfg.event_verse_ref) $("#verseRef").textContent = cfg.event_verse_ref;
-    if (cfg.event_subtitle) $("#brandName").textContent = cfg.event_subtitle;
+    if (cfg.event_subtitle) { const o = document.querySelector("#heroOrg"); if (o) o.textContent = cfg.event_subtitle; }
     const pix = cfg.pix || {};
     if (pix.enabled) {
       $("#pixbox").style.display = "flex";

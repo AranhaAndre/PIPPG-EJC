@@ -31,10 +31,12 @@ img,svg{display:block}
 
 /* ---------- faixa topo ---------- */
 .topbar{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:11px 18px; background:var(--ink); color:#fff;
-  position:sticky;top:0;z-index:40;
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:8px 16px; background:#0a0e17; color:#fff;
+  position:sticky;top:0;z-index:40;border-bottom:1px solid #1b2440;
 }
+.topbar .logo-ig{height:38px;width:38px;border-radius:10px;object-fit:cover;flex:none;box-shadow:0 1px 4px rgba(0,0,0,.4)}
+.topbar .logo-ejc{height:36px;width:auto;border-radius:8px;flex:none;box-shadow:0 1px 4px rgba(0,0,0,.4)}
 .topbar .brand{display:flex;align-items:center;gap:9px;font-weight:600;font-size:.83rem;letter-spacing:.02em}
 .topbar .brand .mira{width:17px;height:17px;flex:none}
 .topbar .coord{
@@ -42,6 +44,7 @@ img,svg{display:block}
   border:1px solid #2c3d6d;border-radius:99px;padding:5px 12px;transition:.15s;
 }
 .topbar .coord:hover{background:#1b2c57;color:#fff}
+.hero .org{font-weight:600;font-size:.9rem;color:var(--ink-soft);margin-top:6px;letter-spacing:.01em}
 .livedot{display:inline-flex;align-items:center;gap:6px;font-size:.68rem;color:#9fb0d6}
 .livedot i{width:7px;height:7px;border-radius:50%;background:#3ad29a;box-shadow:0 0 0 0 rgba(58,210,154,.6);animation:pulse 2s infinite}
 .livedot.off i{background:#8791ac;animation:none;box-shadow:none}
