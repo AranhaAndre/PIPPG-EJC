@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Coordenação · O Alvo é Cristo</title>
+<meta name="theme-color" content="#10214b">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<div class="admin-top">
+  <span class="brand">
+    <svg class="mira" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r=".6" fill="currentColor"/>
+    </svg>
+    Coordenação
+    <span class="livedot off" id="livedot" style="margin-left:6px"><i></i>ao vivo</span>
+  </span>
+  <span class="acts">
+    <a href="/" target="_blank">Ver página pública ↗</a>
+    <a href="/api/admin/export.xlsx">Excel</a>
+    <a href="/api/admin/export.pdf">PDF</a>
+    <button id="logout">Sair</button>
+  </span>
+</div>
+
+<div class="admin-wrap">
+
+  <h2><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h4l3 8 4-16 3 8h4"/></svg>Resumo</h2>
+  <div class="kpis" id="kpis"></div>
+
+  <h2><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/></svg>Cobertura por categoria</h2>
+  <div class="catbars" id="catbars"></div>
+
+  <h2><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5h11M9 12h11M9 19h11M4 5h.01M4 12h.01M4 19h.01"/></svg>Acompanhamento ao vivo</h2>
+  <div class="panel">
+    <div class="filters" id="itemFilters">
+      <button data-f="all" class="on">Todos</button>
+      <button data-f="pend">Faltando</button>
+      <button data-f="done">Completos</button>
+    </div>
+    <div class="tbl-scroll">
+      <table class="tbl">
+        <thead><tr><th>Categoria</th><th>Item</th><th>Meta</th><th>Falta</th><th>Status</th><th>Doadores</th></tr></thead>
+        <tbody id="itemsBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <h2><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6H4M20 12H4M20 18H4"/></svg>Doações registradas</h2>
+  <div class="panel">
+    <div class="filters" id="donFilters">
+      <button data-s="" class="on">Todas</button>
+      <button data-s="prometido">Prometidas</button>
+      <button data-s="recebido">Recebidas</button>
+      <button data-s="cancelado">Canceladas</button>
+    </div>
+    <div class="tbl-scroll">
+      <table class="tbl">
+        <thead><tr><th>Item</th><th>Doador</th><th>Grupo</th><th>Qtd</th><th>Status</th><th>Ações</th></tr></thead>
+        <tbody id="donBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <h2><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>Gerenciar a lista</h2>
+  <div class="grid2">
+    <!-- adicionar item -->
+    <div class="card">
+      <h3>Adicionar item</h3>
+      <p class="hint">Novo item na lista de doações.</p>
+      <div class="frm">
+        <div class="field"><label>Categoria</label>
+          <select id="aiCat"></select>
+        </div>
+        <div class="field"><label>Ou crie uma categoria nova</label>
+          <input id="aiCatNew" placeholder="Deixe em branco para usar a de cima">
+        </div>
+        <div class="field"><label>Nome do item</label><input id="aiName" placeholder="Ex.: Pão francês"></div>
+        <div class="two">
+          <div class="field" style="flex:1"><label>Meta (quantidade)</label><input id="aiMeta" type="number" min="0" step="any" placeholder="Ex.: 20"></div>
+          <div class="field" style="flex:1"><label>Unidade</label><input id="aiUnit" placeholder="kg, un, L…"></div>
+        </div>
+        <button class="btn" id="aiAdd">Adicionar à lista</button>
+      </div>
+    </div>
+
+    <!-- resetar item -->
+    <div class="card warn">
+      <h3>Resetar doações de um item</h3>
+      <p class="hint">Apaga <b>todas</b> as doações desse item e ele volta a faltar por completo.</p>
+      <div class="frm">
+        <div class="field"><label>Item</label><select id="rsItem"></select></div>
+        <button class="btn gold" id="rsBtn">Resetar este item</button>
+      </div>
+    </div>
+
+    <!-- excluir item -->
+    <div class="card danger">
+      <h3>Excluir item da lista</h3>
+      <p class="hint">Remove o item por completo, tendo doações ou não. Não dá para desfazer.</p>
+      <div class="frm">
+        <div class="field"><label>Item</label><select id="delItem"></select></div>
+        <button class="btn red" id="delBtn">Excluir item</button>
+      </div>
+    </div>
+
+    <!-- adicionar categoria -->
+    <div class="card">
+      <h3>Adicionar categoria</h3>
+      <p class="hint">Seções da lista (ex.: “Sábado · Almoço”, “Bebidas”).</p>
+      <div class="frm">
+        <div class="field"><label>Nome da categoria</label><input id="acName" placeholder="Ex.: Sobremesas"></div>
+        <button class="btn" id="acAdd">Criar categoria</button>
+        <div id="catList" style="margin-top:14px"></div>
+      </div>
+    </div>
+  </div>
+
+  <h2><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 01-10 0zM7 4H5v2a3 3 0 003 3M17 4h2v2a3 3 0 01-3 3"/></svg>Quem já doou</h2>
+  <div class="panel" style="padding:16px 18px"><ul class="rank" id="rank"></ul></div>
+
+</div>
+
+<div class="toast" id="toast"><span class="em"></span><span class="msg"></span></div>
+<script src="/static/admin.js"></script>
+</body>
+</html>

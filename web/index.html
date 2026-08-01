@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>O Alvo é Cristo · Doações</title>
+<meta name="theme-color" content="#10214b">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=Fraunces:ital,opsz,wght@1,9..144,400;1,9..144,500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<div class="topbar">
+  <span class="brand">
+    <svg class="mira" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r=".6" fill="currentColor"/>
+    </svg>
+    <span id="brandName">Mocidade Presbiteriana · Ponta Grossa</span>
+  </span>
+  <span class="livedot off" id="livedot"><i></i>ao vivo</span>
+</div>
+
+<div class="wrap">
+
+  <!-- HERO: o alvo -->
+  <section class="hero">
+    <div class="alvo-wrap">
+      <svg viewBox="0 0 200 200" aria-hidden="true">
+        <!-- anéis do alvo -->
+        <circle cx="100" cy="100" r="92" fill="#e4eaf7"/>
+        <circle cx="100" cy="100" r="74" fill="#f8dde0"/>
+        <circle cx="100" cy="100" r="56" fill="#fdeecb"/>
+        <circle cx="100" cy="100" r="42" fill="#ffffff"/>
+        <circle cx="100" cy="100" r="92" fill="none" stroke="#fff" stroke-width="2.5"/>
+        <circle cx="100" cy="100" r="74" fill="none" stroke="#fff" stroke-width="2.5"/>
+        <circle cx="100" cy="100" r="56" fill="none" stroke="#fff" stroke-width="2.5"/>
+        <circle cx="100" cy="100" r="42" fill="none" stroke="#fff" stroke-width="2.5"/>
+        <!-- anel de progresso -->
+        <circle cx="100" cy="100" r="97" fill="none" stroke="#eef2fb" stroke-width="6"/>
+        <circle id="progRing" cx="100" cy="100" r="97" fill="none" stroke="#e23b45"
+          stroke-width="6" stroke-linecap="round"
+          stroke-dasharray="609.5" stroke-dashoffset="609.5"
+          transform="rotate(-90 100 100)"/>
+        <!-- flecha fincada no centro -->
+        <g id="arrow" opacity="0">
+          <line x1="171" y1="29" x2="104" y2="96" stroke="#c9871a" stroke-width="3.4" stroke-linecap="round"/>
+          <path d="M104 96 l12 -3 l-3 -9 z" fill="#c9871a"/>
+          <path d="M171 29 l-9 1 l4 -8 z" fill="#c9871a"/>
+          <path d="M166 34 l-9 1 l4 -8 z" fill="#f0ac2e"/>
+        </g>
+      </svg>
+      <div class="center-pct">
+        <span class="num" id="heroPct">0%</span>
+        <span class="lbl">no alvo</span>
+      </div>
+    </div>
+    <h1>O alvo é <span class="cristo">Cristo</span></h1>
+    <p class="verse" id="verse">Prossigo para o alvo, para o prêmio da soberana vocação de Deus em Cristo Jesus.</p>
+    <p class="verse-ref" id="verseRef">Filipenses 3.14</p>
+    <p class="sub" id="heroSub">Carregando a lista…</p>
+  </section>
+
+  <!-- PIX -->
+  <section class="pix" id="pixbox" style="display:none">
+    <div class="qr"><img id="pixQr" alt="QR Code PIX"></div>
+    <div class="info">
+      <div class="t">💛 <span>Prefere ajudar em dinheiro?</span></div>
+      <div class="note" id="pixNote"></div>
+      <div class="keyrow">
+        <span class="key" id="pixKey"></span>
+        <button class="copy" id="pixCopy">Copiar chave</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- instruções -->
+  <section class="howto">
+    <div class="step"><span class="n">1</span><p>Ache um item e toque em <b>Vou doar</b>.</p></div>
+    <div class="step"><span class="n">2</span><p>Diga seu <b>nome</b> e <b>quanto</b> vai levar.</p></div>
+    <div class="step"><span class="n">3</span><p>Pronto — a barra enche na tela de todos. <b>Obrigado!</b></p></div>
+  </section>
+
+  <!-- toolbar -->
+  <div class="toolbar">
+    <div class="search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      <input id="search" type="search" placeholder="Buscar um item…" autocomplete="off">
+    </div>
+    <div class="chips" id="chips"></div>
+  </div>
+
+  <!-- lista -->
+  <div id="list"></div>
+  <button class="freebtn" id="freeBtn">➕ Não achou? Doar um item fora da lista</button>
+</div>
+
+<!-- modal -->
+<div class="overlay" id="overlay">
+  <div class="sheet" role="dialog" aria-modal="true">
+    <div class="grip"></div>
+    <h3 id="mTitle">Vou doar</h3>
+    <p class="for" id="mFor"></p>
+    <div class="field" id="freeWrap" style="display:none">
+      <label>O que você vai doar?</label>
+      <input id="mFree" placeholder="Ex.: Guardanapos, gelo, copos…">
+    </div>
+    <div class="field">
+      <label>Seu nome *</label>
+      <input id="mName" placeholder="Como quer ser identificado" autocomplete="name">
+    </div>
+    <div class="field">
+      <label>Grupo ou família <span style="color:var(--ink-mute)">(opcional)</span></label>
+      <input id="mGroup" placeholder="Ex.: seu núcleo, sua família">
+    </div>
+    <div class="qtyrow">
+      <div class="field q">
+        <label>Quantidade *</label>
+        <input id="mQty" type="number" inputmode="decimal" min="0" step="any" placeholder="0">
+      </div>
+      <div class="field u">
+        <label>Unidade</label>
+        <input id="mUnit" placeholder="kg, un, L…">
+      </div>
+    </div>
+    <div class="field">
+      <label>Telefone <span style="color:var(--ink-mute)">(opcional)</span></label>
+      <input id="mContact" inputmode="tel" placeholder="Para combinar a entrega">
+    </div>
+    <div class="field">
+      <label>Observação <span style="color:var(--ink-mute)">(opcional)</span></label>
+      <input id="mObs" placeholder="Algum detalhe?">
+    </div>
+    <input class="hp" id="mWebsite" tabindex="-1" autocomplete="off" placeholder="website">
+    <button class="send" id="mSend">🎯 Confirmar doação</button>
+    <button class="cancel" id="mCancel">Agora não</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"><span class="em"></span><span class="msg"></span></div>
+<script src="/static/doador.js"></script>
+</body>
+</html>

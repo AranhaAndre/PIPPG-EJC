@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Entrar · Coordenação</title>
+<meta name="theme-color" content="#10214b">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<div class="login-page">
+  <div class="login-card">
+    <svg class="mira" viewBox="0 0 24 24" fill="none" stroke="#e23b45" stroke-width="2">
+      <circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r=".8" fill="#e23b45"/>
+    </svg>
+    <h1>Coordenação</h1>
+    <p>Acesso restrito à equipe</p>
+    <div class="field"><label>Usuário</label><input id="u" autocomplete="username" autofocus></div>
+    <div class="field"><label>Senha</label><input id="p" type="password" autocomplete="current-password"></div>
+    <button class="btn" id="go">Entrar</button>
+    <div class="err" id="err"></div>
+    <a class="back" href="/">← Voltar para a lista</a>
+  </div>
+</div>
+<script>
+const $ = s => document.querySelector(s);
+async function go() {
+  $("#err").textContent = "";
+  const r = await fetch("/api/login", {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ usuario: $("#u").value, senha: $("#p").value }),
+  });
+  if (r.ok) location.href = "/admin";
+  else $("#err").textContent = "Usuário ou senha incorretos.";
+}
+$("#go").onclick = go;
+["u", "p"].forEach(id => $("#" + id).addEventListener("keydown", e => { if (e.key === "Enter") go(); }));
+</script>
+</body>
+</html>
