@@ -14,9 +14,9 @@ class Settings:
     )
     EVENT_VERSE: str = os.getenv(
         "EVENT_VERSE",
-        "Prossigo para o alvo, para o prêmio da soberana vocação de Deus em Cristo Jesus.",
+        "Pois, onde estiver o seu tesouro, ali também estará o seu coração.",
     )
-    EVENT_VERSE_REF: str = os.getenv("EVENT_VERSE_REF", "Filipenses 3.14")
+    EVENT_VERSE_REF: str = os.getenv("EVENT_VERSE_REF", "Mateus 6:21")
 
     # Banco de dados (SQLite em volume Docker por padrão)
     DATABASE_URL: str = os.getenv(

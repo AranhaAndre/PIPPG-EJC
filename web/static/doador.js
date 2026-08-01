@@ -187,11 +187,20 @@
   // ---------- modal ----------
   function openModal(item) {
     if (item) {
-      modalCtx = { id: item.id, nome: item.nome, unidade: item.unidade };
+      const faltante = Math.max(0, Math.round((item.meta - item.doado) * 10000) / 10000);
+      // item já completo: não deixa doar mais (evita passar da meta)
+      if (item.completo || faltante <= 0) {
+        toast(`“${item.nome}” já está completo! 🎯 Obrigado!`);
+        return;
+      }
+      modalCtx = { id: item.id, nome: item.nome, unidade: item.unidade, faltante: faltante };
       $("#mTitle").textContent = "Vou doar";
-      $("#mFor").innerHTML = `Item: <b>${esc(item.nome)}</b>`;
+      $("#mFor").innerHTML = `Item: <b>${esc(item.nome)}</b> · faltam <b>${fmt(faltante)} ${esc(item.unidade)}</b>`;
       $("#freeWrap").style.display = "none";
       $("#mUnit").value = item.unidade || "";
+      const q = $("#mQty");
+      q.max = faltante;
+      q.placeholder = `no máximo ${fmt(faltante)}`;
     } else {
       modalCtx = "free";
       $("#mTitle").textContent = "Doar um item fora da lista";
@@ -199,6 +208,7 @@
       $("#freeWrap").style.display = "";
       $("#mFree").value = "";
       $("#mUnit").value = "";
+      const q = $("#mQty"); q.removeAttribute("max"); q.placeholder = "0";
     }
     $("#mQty").value = "";
     $("#mWebsite").value = "";
@@ -215,6 +225,9 @@
     const qty = parseFloat($("#mQty").value);
     if (nome.length < 2) return toast("Escreva seu nome 🙂", true);
     if (!qty || qty <= 0) return toast("Informe a quantidade", true);
+    if (modalCtx !== "free" && modalCtx.faltante != null && qty > modalCtx.faltante + 1e-6) {
+      return toast(`No máximo ${fmt(modalCtx.faltante)} ${modalCtx.unidade} — é o que falta 🎯`, true);
+    }
     const payload = {
       doador_nome: nome,
       grupo: $("#mGroup").value.trim() || null,

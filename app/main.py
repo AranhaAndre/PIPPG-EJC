@@ -188,6 +188,23 @@ async def api_create_donation(payload: DonationCreate, db: AsyncSession = Depend
             raise HTTPException(404, "Item não encontrado")
         unidade = unidade or item.unidade
 
+        # trava: não pode ultrapassar a meta do item
+        total_doado = (await db.execute(
+            select(func.coalesce(func.sum(Donation.quantidade), 0.0))
+            .where(Donation.item_id == item.id, Donation.status != "cancelado")
+        )).scalar() or 0.0
+        faltante = round(item.meta - total_doado, 4)
+        EPS = 1e-6
+        if faltante <= EPS:
+            raise HTTPException(400, f"“{item.nome}” já está completo. Obrigado! 🎯")
+        if payload.quantidade > faltante + EPS:
+            falta_txt = f"{faltante:g} {item.unidade}".strip()
+            raise HTTPException(
+                400,
+                f"Faltam apenas {falta_txt} de “{item.nome}”. "
+                f"Registre no máximo essa quantidade.",
+            )
+
     d = Donation(
         item_id=payload.item_id,
         item_livre=(payload.item_livre or "").strip() or None,
@@ -439,7 +456,8 @@ async def admin_delete_item(
 @app.get("/api/admin/stats")
 async def admin_stats(admin: str = Depends(require_admin), db: AsyncSession = Depends(get_db)):
     snap = await compute_progress(db)
-    rows = (await db.execute(select(Donation).where(Donation.status != "cancelado"))).scalars().all()
+    # ranking "quem já entregou": só doações RECEBIDAS (confirmadas)
+    rows = (await db.execute(select(Donation).where(Donation.status == "recebido"))).scalars().all()
     ranking: dict[str, int] = {}
     for d in rows:
         chave = d.doador_nome + (f" ({d.grupo})" if d.grupo else "")

@@ -88,7 +88,7 @@
     const r = statsCache.ranking || [];
     $("#rank").innerHTML = r.length ? r.map((x, i) =>
       `<li><span class="pos">${i + 1}º</span><span class="nm">${esc(x.nome)}</span><span class="ct">${x.doacoes} ${x.doacoes > 1 ? "doações" : "doação"}</span></li>`
-    ).join("") : `<li class="muted">Ainda ninguém doou.</li>`;
+    ).join("") : `<li class="muted">Ninguém teve a doação confirmada como recebida ainda.</li>`;
   }
 
   // ---------- doações ----------
