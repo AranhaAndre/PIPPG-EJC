@@ -1,12 +1,14 @@
 """App de DOAÇÕES da Mocidade — isolado e autossuficiente (não é o ARES)."""
 from __future__ import annotations
 
+import asyncio
 import io
+import sqlite3
 from contextlib import asynccontextmanager
 from datetime import datetime
 from pathlib import Path
 
-from fastapi import Depends, FastAPI, HTTPException, Response, WebSocket, WebSocketDisconnect
+from fastapi import Depends, FastAPI, HTTPException, Request, Response, WebSocket, WebSocketDisconnect
 from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy import func, select
@@ -35,13 +37,84 @@ LOGO_IGREJA = WEB / "static" / "img" / "logo-igreja.png"
 LOGO_EJC = WEB / "static" / "img" / "logo-ejc.png"
 
 
+# ---------------------------------------------------------- backup ----
+BACKUP_EVERY_HOURS = 6
+BACKUP_KEEP = 12  # mantém as últimas 12 cópias (~3 dias de histórico)
+
+
+def _db_file_path() -> Path | None:
+    """Extrai o caminho do arquivo SQLite da DATABASE_URL."""
+    url = settings.DATABASE_URL
+    if url.startswith("sqlite") and "://" in url:
+        p = "/" + url.split("://", 1)[1].lstrip("/")
+        return Path(p)
+    return None
+
+
+def _do_backup() -> Path | None:
+    """Cópia consistente do banco (usa a API de backup do SQLite)."""
+    src = _db_file_path()
+    if not src or not src.exists():
+        return None
+    bkdir = src.parent / "backups"
+    bkdir.mkdir(parents=True, exist_ok=True)
+    ts = datetime.now()
+    dest = bkdir / f"doacoes-{ts:%Y%m%d-%H%M%S}.db"
+    s = sqlite3.connect(str(src))
+    d = sqlite3.connect(str(dest))
+    try:
+        with d:
+            s.backup(d)
+    finally:
+        s.close()
+        d.close()
+    # remove as cópias mais antigas além do limite
+    olds = sorted(bkdir.glob("doacoes-*.db"))
+    for o in olds[:-BACKUP_KEEP]:
+        try:
+            o.unlink()
+        except OSError:
+            pass
+    (src.parent / "last_backup.txt").write_text(ts.isoformat())
+    return dest
+
+
+def _backup_info() -> dict:
+    src = _db_file_path()
+    info = {"last": None, "count": 0, "every_hours": BACKUP_EVERY_HOURS}
+    if not src:
+        return info
+    marker = src.parent / "last_backup.txt"
+    if marker.exists():
+        try:
+            info["last"] = marker.read_text().strip()
+        except OSError:
+            pass
+    bkdir = src.parent / "backups"
+    if bkdir.exists():
+        info["count"] = len(list(bkdir.glob("doacoes-*.db")))
+    return info
+
+
+async def _backup_loop():
+    await asyncio.sleep(20)  # primeiro backup logo após subir
+    while True:
+        try:
+            await asyncio.to_thread(_do_backup)
+        except Exception:
+            pass
+        await asyncio.sleep(BACKUP_EVERY_HOURS * 3600)
+
+
 # ---------------------------------------------------------------- startup ----
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
     await _seed_if_empty()
+    backup_task = asyncio.create_task(_backup_loop())
     yield
+    backup_task.cancel()
     await engine.dispose()
 
 
@@ -225,14 +298,16 @@ async def api_create_donation(payload: DonationCreate, db: AsyncSession = Depend
 
 # ------------------------------------------------------------ auth ----
 @app.post("/api/login")
-async def api_login(body: LoginIn):
+async def api_login(body: LoginIn, request: Request):
     if not check_credentials(body.usuario, body.senha):
         raise HTTPException(401, "Usuário ou senha incorretos")
     token = create_token()
     resp = JSONResponse({"ok": True})
+    # Secure só quando a conexão é HTTPS (evita o cookie "sumir" em HTTP e
+    # causar o loop de login). Com --proxy-headers, o scheme reflete o proxy.
     resp.set_cookie(
         COOKIE_NAME, token,
-        httponly=True, samesite="lax", secure=settings.COOKIE_SECURE,
+        httponly=True, samesite="lax", secure=(request.url.scheme == "https"),
         max_age=settings.TOKEN_TTL_HOURS * 3600, path="/",
     )
     return resp
@@ -478,6 +553,11 @@ async def admin_stats(admin: str = Depends(require_admin), db: AsyncSession = De
         ],
         "itens": snap["itens"],
     }
+
+
+@app.get("/api/admin/backup-info")
+async def admin_backup_info(admin: str = Depends(require_admin)):
+    return _backup_info()
 
 
 # ------------------------------------------------------ exportações ----

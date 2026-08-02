@@ -330,3 +330,8 @@ img,svg{display:block}
 @media(prefers-reduced-motion:reduce){
   *{animation:none!important;transition:none!important}
 }
+
+/* rodapé de backup (admin) */
+.bkfoot{max-width:1180px;margin:34px auto 0;padding:16px 18px 0;border-top:1px solid var(--line);display:flex;align-items:center;gap:9px;color:var(--ink-mute);font-size:.82rem}
+.bkfoot svg{color:var(--verde);flex:none}
+.bkfoot b{color:var(--ink-soft);font-weight:600}

@@ -13,6 +13,7 @@
     connect();
     loadStats();
     loadDonations();
+    loadBackupInfo();
     $("#logout").onclick = async () => { await fetch("/api/logout", { method: "POST" }); location.href = "/login"; };
     $("#itemFilters").addEventListener("click", e => {
       const b = e.target.closest("button"); if (!b) return;
@@ -200,6 +201,24 @@
     await fetch(`/api/admin/items/${id}`, { method: "DELETE" });
     toast("Item excluído da lista");
     loadStats(); loadDonations();
+  }
+
+  async function loadBackupInfo() {
+    const el = document.querySelector("#bkText");
+    if (!el) return;
+    try {
+      const b = await (await fetch("/api/admin/backup-info")).json();
+      if (b.last) {
+        const d = new Date(b.last);
+        const dt = d.toLocaleDateString("pt-BR") + " às " +
+          d.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+        el.innerHTML = `Cópia de segurança automática a cada ${b.every_hours}h · última: <b>${dt}</b> · ${b.count} cópia${b.count === 1 ? "" : "s"} guardada${b.count === 1 ? "" : "s"}`;
+      } else {
+        el.textContent = `Cópia de segurança automática a cada ${b.every_hours}h · primeira cópia em instantes…`;
+      }
+    } catch (e) {
+      el.textContent = "Backup automático ativo.";
+    }
   }
 
   // ---------- toast / util ----------
