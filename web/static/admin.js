@@ -132,6 +132,16 @@
     const cats = await (await fetch("/api/admin/categories")).json();
     $("#aiCat").innerHTML = cats.map(c => `<option value="${c.id}">${esc(c.nome)}</option>`).join("")
       || `<option value="">(crie uma categoria)</option>`;
+    // lista de categorias com botão excluir (dentro do card "Excluir categoria ou item")
+    const cl = $("#catList");
+    if (cl) {
+      cl.innerHTML = `<div class="muted" style="font-size:.76rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Categorias</div>` + cats.map(c =>
+        `<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-top:1px solid var(--line);font-size:.85rem">
+          <span>${esc(c.nome)} <span class="muted">(${c.itens} ${c.itens === 1 ? "item" : "itens"})</span></span>
+          <button class="rowbtn no" data-delcat="${c.id}">excluir</button></div>`
+      ).join("");
+      cl.querySelectorAll("button[data-delcat]").forEach(b => b.onclick = () => deleteCategory(b.dataset.delcat));
+    }
     // selects de item (reset / excluir)
     const its = (statsCache?.itens || []);
     const opts = `<option value="">Selecione…</option>` + its.map(i => `<option value="${i.id}">${esc(i.categoria)} · ${esc(i.nome)}</option>`).join("");
