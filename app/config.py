@@ -32,9 +32,9 @@ class Settings:
     COOKIE_SECURE: bool = os.getenv("COOKIE_SECURE", "true").lower() == "true"
 
     # PIX (BR Code / copia-e-cola). Deixe PIX_KEY vazio para esconder a seção.
-    PIX_KEY: str = os.getenv("PIX_KEY", "")
-    PIX_NAME: str = os.getenv("PIX_NAME", "")          # nome do beneficiário (máx 25)
-    PIX_CITY: str = os.getenv("PIX_CITY", "")          # cidade (máx 15)
+    PIX_KEY: str = os.getenv("PIX_KEY", "ejcpippg0@gmail.com")
+    PIX_NAME: str = os.getenv("PIX_NAME", "EJC PIPPG")   # nome do beneficiário (máx 25)
+    PIX_CITY: str = os.getenv("PIX_CITY", "PONTA GROSSA")  # cidade (máx 15)
     PIX_DESCRIPTION: str = os.getenv("PIX_DESCRIPTION", "Doacao Mocidade")
     PIX_AMOUNT: str = os.getenv("PIX_AMOUNT", "")      # vazio = doador escolhe o valor
     # Aviso livre exibido junto ao PIX (ex.: centavos identificadores da tesouraria)
